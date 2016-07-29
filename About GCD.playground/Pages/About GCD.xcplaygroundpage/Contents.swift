@@ -124,7 +124,7 @@ if dispatch_group_wait(group, when) == 0 {
  */
 dispatch_group_enter(group) // Indicate a block has entered the group
 dispatch_group_leave(group) // Indicate a block in the group has completed
-//: ## Enqueue a block for execution at the specified time.
+//: ## Enqueue a block for execution at the specified time
 dispatch_after(when, mainQueue) {
     
 }
@@ -142,7 +142,7 @@ dispatch_apply(count, concurrentQueue) {
     print("Dispatch apply i:\($0)")
 }
 /*:
- ## Executes a block object once and only once for the lifetime of an application.
+ ## Executes a block object once and only once for the lifetime of an application
  
  If called simultaneously from multiple threads, this function waits synchronously until the block has completed.
  
