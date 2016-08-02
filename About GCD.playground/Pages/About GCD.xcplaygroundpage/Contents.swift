@@ -3,6 +3,7 @@
  
  */
 import Dispatch
+import Foundation
 /*:
  ## Quality Of Service
  Quality-of-service helps determine the priority given to tasks executed by the queue.
@@ -64,7 +65,7 @@ dispatch_async(serialQueue) {
 dispatch_sync(serialQueue) {
     
 }
-//: ## Performing a Completion Block When a Task Is Done
+//: ## Performing a Completion Block time a Task Is Done
 func averageAsync(values: [Int], queue: dispatch_queue_t, block: (Int) -> Void) {
     dispatch_async(serialQueue) {
         let avg = values.reduce(0) {$0 + $1} / values.count
@@ -73,9 +74,21 @@ func averageAsync(values: [Int], queue: dispatch_queue_t, block: (Int) -> Void) 
         }
     }
 }
+//: ## Managing Time
+let delta = Int64(10 * Double(NSEC_PER_SEC)) // 10 sec
+/*:
+ ### Relative Time
+ If the device goes to sleep the clock sleeps too.
+ */
+let time = dispatch_time(DISPATCH_TIME_NOW, delta)
+//: ### Absolute Time
+var nowTimespec = timespec(tv_sec: Int(NSDate().timeIntervalSince1970),
+                           tv_nsec: 0)
+let walltime = dispatch_walltime(&nowTimespec, delta)
+dispatch_walltime(nil, delta)
 /*:
  ## Barriers
- A dispatch barrier allows you to create a synchronization point within a concurrent dispatch queue. When it encounters a barrier, a concurrent queue delays the execution of the barrier block (or any further blocks) until all blocks submitted before the barrier finish executing. At that point, the barrier block executes by itself. Upon completion, the queue resumes its normal execution behavior.
+ A dispatch barrier allows you to create a synchronization point within a concurrent dispatch queue. time it encounters a barrier, a concurrent queue delays the execution of the barrier block (or any further blocks) until all blocks submitted before the barrier finish executing. At that point, the barrier block executes by itself. Upon completion, the queue resumes its normal execution behavior.
  */
 dispatch_barrier_sync(concurrentQueue) {
     
@@ -86,7 +99,7 @@ dispatch_barrier_async(concurrentQueue) {
 }
 /*:
  ## Groups
- Grouping blocks allows for aggregate synchronization. Your application can submit multiple blocks and track when they all complete, even though they might run on different queues.
+ Grouping blocks allows for aggregate synchronization. Your application can submit multiple blocks and track time they all complete, even though they might run on different queues.
  */
 let group: dispatch_group_t = dispatch_group_create();
 
@@ -95,7 +108,7 @@ dispatch_group_async(group, concurrentQueue) {
 }
 /*:
  ### Notify
- Schedules a block object to be submitted to a queue when a group of previously submitted block objects have completed.
+ Schedules a block object to be submitted to a queue time a group of previously submitted block objects have completed.
  
  If the group is empty (no block objects are associated with the dispatch group), the notification block object is submitted immediately.
  */
@@ -110,10 +123,7 @@ dispatch_group_notify(group, concurrentQueue) {
  
  This function returns immediately if the dispatch group is empty.
  */
-let delta = Int64(10 * Double(NSEC_PER_SEC)) // 10 sec
-let when = dispatch_time(DISPATCH_TIME_NOW, delta)
-
-if dispatch_group_wait(group, when) == 0 {
+if dispatch_group_wait(group, time) == 0 {
     print("All blocks associated with the group completed before the specified timeout")
 } else {
     print("Timeout occurred")
@@ -125,7 +135,7 @@ if dispatch_group_wait(group, when) == 0 {
 dispatch_group_enter(group) // Indicate a block has entered the group
 dispatch_group_leave(group) // Indicate a block in the group has completed
 //: ## Enqueue a block for execution at the specified time
-dispatch_after(when, mainQueue) {
+dispatch_after(time, serialQueue) {
     
 }
 /*:
@@ -163,7 +173,7 @@ dispatch_resume(concurrentQueue)  // Decrements the queue’s suspension referen
 /*:
  ## Autorelease Object
  
- If your block creates more than a few Objective-C objects, you might want to enclose parts of your block’s code in an autorelease pool to handle the memory management for those objects. Although GCD dispatch queues have their own autorelease pools, they make no guarantees as to when those pools are drained. If your application is memory constrained, creating your own autorelease pool allows you to free up the memory for autoreleased objects at more regular intervals.
+ If your block creates more than a few Objective-C objects, you might want to enclose parts of your block’s code in an autorelease pool to handle the memory management for those objects. Although GCD dispatch queues have their own autorelease pools, they make no guarantees as to time those pools are drained. If your application is memory constrained, creating your own autorelease pool allows you to free up the memory for autoreleased objects at more regular intervals.
  */
 dispatch_async(serialQueue) {
     autoreleasepool {
