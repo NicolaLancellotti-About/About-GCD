@@ -30,7 +30,7 @@ serialQueue.label
  Your application uses one (and only one) of the following three approaches to invoke blocks submitted to the main queue:
  * Calling dispatchMain.
  * Calling UIApplicationMain (iOS) or NSApplicationMain (macOS).
- * Using a CFRunLoopRef on the main thread.
+ * Using a CFRunLoop on the main thread.
  */
 let mainQueue = DispatchQueue.main
 /*:
@@ -54,7 +54,7 @@ let globalQueue = DispatchQueue.global(qos: .background)
  * synchronously
  
  
- You should never call the dispatch_sync or dispatch_sync_f function from a task that is executing in the same queue that you are planning to pass to the function. This is particularly important for serial queues, which are guaranteed to deadlock, but should also be avoided for concurrent queues.
+ You should never call the `sync` method from a task that is executing in the same queue that you are planning to pass to the function. This is particularly important for serial queues, which are guaranteed to deadlock, but should also be avoided for concurrent queues.
  These functions block the current thread of execution until the specified task finishes executing.
  If you need to dispatch to the current queue, do so asynchronously.
  */
