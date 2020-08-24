@@ -1,2 +1,2 @@
 # About-GCD
-A playground about Grand Central Dispatch.
+Explanations and samples about Grand Central Dispatch.
